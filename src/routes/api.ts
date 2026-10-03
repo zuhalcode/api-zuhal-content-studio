@@ -7,8 +7,6 @@ import assetBalanceController from "../controllers/asset-balance.controller";
 
 import { isAuthenticated } from "../middlewares/auth";
 
-import multer from "multer";
-
 import { assetTransactionController } from "../modules/asset-transaction";
 import { capitalController } from "../modules/capital";
 import { assetController } from "../modules/asset";
