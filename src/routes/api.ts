@@ -8,7 +8,6 @@ import assetBalanceController from "../controllers/asset-balance.controller";
 import { isAuthenticated } from "../middlewares/auth";
 
 import multer from "multer";
-import imageKit from "../libs/imagekit";
 
 import { assetTransactionController } from "../modules/asset-transaction";
 import { capitalController } from "../modules/capital";
@@ -21,7 +20,6 @@ import { backupController } from "../modules/backup";
 //#endregion
 
 const router = express.Router();
-const upload = multer();
 
 // AUTH
 router.get("/auth/me", isAuthenticated, authController.me);
@@ -91,17 +89,5 @@ router.get(
 router.get("/trash", isAuthenticated, trashController.findAll);
 router.post("/trash/:resource/:id", isAuthenticated, trashController.restore);
 router.delete("/trash/:resource/:id", isAuthenticated, trashController.destroy);
-
-// IMAGEKIT AUTH
-router.get("/imagekit-auth", isAuthenticated, (_, res) => {
-  try {
-    const authParams = imageKit.getAuthenticationParameters();
-    return res.json(authParams);
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ error: "Failed to get ImageKit auth parameters." });
-  }
-});
 
 export default router;
