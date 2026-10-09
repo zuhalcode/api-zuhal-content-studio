@@ -3,12 +3,12 @@ import { ALLOWED_ORIGINS } from "../libs/env";
 
 export const corsMiddleware = cors({
   origin(origin, callback) {
-    // Non-browser request: Postman, curl, server-to-server
+    // Allow non-browser requests, such as Postman and curl.
     if (!origin) {
       return callback(null, true);
     }
 
-    if (origin === ALLOWED_ORIGINS) {
+    if (ALLOWED_ORIGINS.includes(origin)) {
       return callback(null, true);
     }
 
