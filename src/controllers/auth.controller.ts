@@ -49,6 +49,9 @@ export default {
             id: user.id,
             email: user.email,
           },
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+          expires_in: session.expires_in,
         },
         "Login successful",
       );
