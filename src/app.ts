@@ -5,10 +5,10 @@ import { corsMiddleware } from "./configs/cors";
 
 const app = express();
 
+app.use(corsMiddleware);
+
 app.use(express.json());
 app.use(cookieParser());
-
-app.use(corsMiddleware);
 
 app.use("/api", apiRouter);
 

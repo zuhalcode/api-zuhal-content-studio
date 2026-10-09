@@ -10,4 +10,7 @@ export const SUPABASE_DATABASE_URL: string =
 export const SUPABASE_SERVICE_ROLE_KEY: string =
   process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
-export const ALLOWED_ORIGINS: string = process.env.ALLOWED_ORIGINS ?? "";
+export const ALLOWED_ORIGINS = [
+  process.env.ORIGIN_DEV || "",
+  process.env.ORIGIN_STAGING || "",
+].filter((origin): origin is string => Boolean(origin));
