@@ -4,8 +4,10 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev -r tsconfig-paths/register src/dev.ts",
-    "backup": "tsx src/scripts/backup.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "db:reset": "npx supabase db reset --linked",
+    "seed:data": "tsx src/scripts/index.ts",
+    "seed": "npm run db:reset && npm run seed:data"
   },
   "keywords": [],
   "author": "",
@@ -23,7 +25,8 @@
     "multer": "^2.0.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.4.5",
-    "yup": "^1.4.0"
+    "yup": "^1.4.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.9",

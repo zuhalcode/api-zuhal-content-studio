@@ -1,46 +1,45 @@
-import { Response, NextFunction } from "express";
+import type { Response, NextFunction } from "express";
 import { supabase } from "../libs/supabase";
-import { IReqUser } from "../utils/interfaces";
+import type { IReqUser } from "../utils/interfaces";
 
 export async function isAuthenticated(
   req: IReqUser,
   res: Response,
   next: NextFunction,
 ) {
-  const token = req.headers.authorization?.split(" ")[1];
+  try {
+    const accessToken = req.cookies.access_token;
 
-  if (!token) {
-    return res.status(401).json({ error: "Unauthorized – no token" });
-  }
+    if (!accessToken) {
+      return res.status(401).json({
+        error: "Unauthorized",
+        message: "Authentication required",
+      });
+    }
 
-  // Verify the token with Supabase
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser(token);
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(accessToken);
 
-  if (error || !user) {
-    console.error("Error getting user:", error);
-    return res.status(401).json({ error: "Unauthorized – invalid token" });
-  }
+    if (error || !user) {
+      return res.status(401).json({
+        error: "Unauthorized",
+        message: "Invalid or expired session",
+      });
+    }
 
-  const { data: appUser, error: appUserError } = await supabase
-    .from("users")
-    .select("role")
-    .eq("id", user.id)
-    .single();
+    req.user = {
+      id: user.id,
+      email: user.email,
+    };
 
-  if (appUserError || !appUser) {
-    return res.status(403).json({
-      error: "User profile not found",
+    return next();
+  } catch (error) {
+    console.error("Authentication error:", error);
+
+    return res.status(500).json({
+      error: "Internal server error",
     });
   }
-
-  req.user = {
-    id: user.id,
-    email: user.email,
-    role: appUser.role,
-  };
-
-  next();
 }

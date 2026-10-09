@@ -6,6 +6,7 @@ import { corsMiddleware } from "./configs/cors";
 const app = express();
 
 app.use(corsMiddleware);
+app.options("*", corsMiddleware);
 
 app.use(express.json());
 app.use(cookieParser());
