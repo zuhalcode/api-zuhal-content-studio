@@ -6,11 +6,18 @@ import { supabase } from "../libs/supabase";
 const ACCESS_TOKEN_COOKIE = "access_token";
 const REFRESH_TOKEN_COOKIE = "refresh_token";
 
-const cookieOptions = {
-  httpOnly: true,
-  secure: true,
-  sameSite: "none" as const,
-  path: "/",
+const isProduction = process.env.NODE_ENV === "production";
+
+export const getCookieOptions = (req?: IReqUser) => {
+  const origin = req?.headers?.origin;
+  const isCrossSite = Boolean(origin && isProduction);
+
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: (isCrossSite ? "none" : "lax") as "none" | "lax",
+    path: "/",
+  };
 };
 
 export default {
@@ -32,14 +39,15 @@ export default {
       }
 
       const { session, user } = data;
+      const options = getCookieOptions(req);
 
       res.cookie(ACCESS_TOKEN_COOKIE, session.access_token, {
-        ...cookieOptions,
+        ...options,
         maxAge: session.expires_in * 1000,
       });
 
       res.cookie(REFRESH_TOKEN_COOKIE, session.refresh_token, {
-        ...cookieOptions,
+        ...options,
       });
 
       return response.success(
@@ -60,10 +68,20 @@ export default {
     }
   },
 
-  async logout(_: IReqUser, res: Response) {
+  async logout(req: IReqUser, res: Response) {
     try {
-      res.clearCookie(ACCESS_TOKEN_COOKIE, cookieOptions);
-      res.clearCookie(REFRESH_TOKEN_COOKIE, cookieOptions);
+      const accessToken = req.cookies?.[ACCESS_TOKEN_COOKIE];
+      if (accessToken) {
+        try {
+          await supabase.auth.admin.signOut(accessToken);
+        } catch {
+          // Silently ignore if token is already invalidated or expired
+        }
+      }
+
+      const options = getCookieOptions(req);
+      res.clearCookie(ACCESS_TOKEN_COOKIE, options);
+      res.clearCookie(REFRESH_TOKEN_COOKIE, options);
 
       return response.success(res, null, "Logout successful");
     } catch (error) {

@@ -8,7 +8,7 @@ export async function isAuthenticated(
   next: NextFunction,
 ) {
   try {
-    const accessToken = req.cookies.access_token;
+    const accessToken = req.cookies?.access_token;
 
     if (!accessToken) {
       return res.status(401).json({
